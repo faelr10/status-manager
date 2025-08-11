@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Obras {
+  id                String      @id @default(uuid()) @db.Uuid
+  name              String
+  orcamento         Float
+  orcamentoGasto    Float       @default(0)
+  orcamentoRestante Float       @default(0)
+  construtoraId     String      @db.Uuid
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  Diaria            Diaria[]
+  Construtora       Construtora @relation(fields: [construtoraId], references: [id])
+
+  @@map("obras")
+}
+
+model Funcionarios {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  valorDiaria Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Diaria      Diaria[]
+
+  @@map("funcionarios")
+}
+
+model Diaria {
+  id            String       @id @default(uuid()) @db.Uuid
+  obraId        String       @db.Uuid
+  funcionarioId String       @db.Uuid
+  valorDiaria   Float
+  data          DateTime
+  obra          Obras        @relation(fields: [obraId], references: [id])
+  funcionario   Funcionarios @relation(fields: [funcionarioId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("diarias")
+}
+
+model Construtora {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Obras     Obras[]
+
+  @@map("construtora")
+}

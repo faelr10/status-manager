@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: status-manager-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: status-manager
+    ports:
+      - '5435:5432' # <- A porta 5432 do container está exposta como 5435 no host (máquina local)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # A linha abaixo é opcional, mas força o PostgreSQL a escutar em todas as interfaces
+    command: postgres -c listen_addresses='*'
+
+volumes:
+  pgdata:
