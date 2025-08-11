@@ -34,7 +34,6 @@ export function formatDiarias(diarias: DiariaAllData[]) {
 
     resultado[day][d.funcionario.name] = d.obra.name;
 
-    //como percorrer um objeto?
     for (const [funcionario, obra] of Object.entries(resultado[day])) {
       if (obra === '') {
         resultado[day][funcionario] = 'Falta';
