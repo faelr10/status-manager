@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Diaria, PrismaClient } from 'generated/prisma';
+import { Diaria, Faltas, PrismaClient } from 'generated/prisma';
 
 export type DiariaCreateInput = {
   funcionarioId: string;
   obraId: string;
   data: Date;
   valorDiaria: number;
+};
+
+export type FaltasCreateInput = {
+  funcionarioId: string;
+  data: Date;
 };
 
 export type DiariaAllData = Diaria & {
@@ -66,6 +71,22 @@ export class GestaoRepository {
 
   async findAllDiariasById(where: Partial<Diaria>): Promise<Diaria[] | null> {
     return this.prisma.diaria.findMany({
+      where,
+    });
+  }
+
+  async newFalta(data: FaltasCreateInput): Promise<Faltas> {
+    return this.prisma.faltas.create({
+      data,
+    });
+  }
+
+  async findAllFaltas(): Promise<Faltas[]> {
+    return this.prisma.faltas.findMany();
+  }
+
+  async findAllFaltasById(where: Partial<Faltas>): Promise<Faltas[] | null> {
+    return this.prisma.faltas.findMany({
       where,
     });
   }

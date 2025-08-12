@@ -22,6 +22,14 @@ export class GestaoService {
       throw new Error('Funcionario not found');
     }
 
+    if (data.obraId === 'falta') {
+      console.log('teste');
+      return this.gestaoRepository.newFalta({
+        funcionarioId: data.funcionarioId,
+        data: data.data,
+      });
+    }
+
     data.valorDiaria = funcionario.valorDiaria;
 
     return this.gestaoRepository.create(data);
@@ -31,6 +39,36 @@ export class GestaoService {
     const diarias = (await this.gestaoRepository.findAll()) as DiariaAllData[];
     const agrupado = formatDiarias(diarias);
 
+    // Buscar faltas
+    const faltas = await this.gestaoRepository.findAllFaltas();
+
+    // Mapeamento auxiliar: funcionarioId -> nome
+    const funcionariosMap: Record<string, string> = {};
+    diarias.forEach((d) => {
+      funcionariosMap[d.funcionario.id] = d.funcionario.name;
+    });
+
+    // Substituir ou criar "Falta" nos dias correspondentes
+    for (const falta of faltas) {
+      const nome = funcionariosMap[falta.funcionarioId];
+      if (!nome) continue;
+
+      // Ajuste para fuso horário
+      const date = new Date(falta.data);
+      const localDate = new Date(
+        date.getTime() + date.getTimezoneOffset() * 60000,
+      );
+      const dia = localDate.getDate().toString();
+
+      // Se o dia não existir no agrupado, cria
+      if (!agrupado[dia]) {
+        agrupado[dia] = {};
+      }
+
+      // Marca como falta (sobrescreve ou cria)
+      agrupado[dia][nome] = 'Falta';
+    }
+
     return agrupado;
   }
 
@@ -39,6 +77,7 @@ export class GestaoService {
 
     type DiariaAgrupada = {
       funcionario: string;
+      funcionarioId: string;
       quantidadeDiarias: number;
       valorTotal: number;
     };
@@ -55,24 +94,26 @@ export class GestaoService {
       obras: ObraAgrupada[];
     };
 
-    const result = diarias.reduce<ConstrutoraAgrupada[]>((acc, diaria) => {
+    const result: ConstrutoraAgrupada[] = [];
+
+    for (const diaria of diarias) {
       const { obra, funcionario, valorDiaria } = diaria;
 
       const construtoraId = obra.Construtora.id;
       const construtoraName = obra.Construtora.name;
 
-      // Encontra ou cria a construtora
-      let construtora = acc.find((c) => c.id === construtoraId);
+      // percorre o acumulado e encontra ou cria a construtora que está no loop atual
+      let construtora = result.find((c) => c.id === construtoraId);
       if (!construtora) {
         construtora = {
           id: construtoraId,
           name: construtoraName,
           obras: [],
         };
-        acc.push(construtora);
+        result.push(construtora);
       }
 
-      // Encontra ou cria a obra dentro da construtora
+      // percorre a construtora e encontra ou cria a obra dentro da construtora
       let obraExistente = construtora.obras.find((o) => o.id === obra.id);
       if (!obraExistente) {
         obraExistente = {
@@ -90,18 +131,33 @@ export class GestaoService {
       if (!funcionarioDiaria) {
         funcionarioDiaria = {
           funcionario: funcionario.name,
+          funcionarioId: funcionario.id,
           quantidadeDiarias: 0,
           valorTotal: 0,
         };
         obraExistente.diarias.push(funcionarioDiaria);
       }
 
+      const faltas = await this.gestaoRepository.findAllFaltasById({
+        funcionarioId: funcionario.id,
+      });
+
+      let quantFaltas = 0;
+
+      if (!faltas) {
+        quantFaltas = 0;
+      } else {
+        quantFaltas = faltas.length;
+      }
+
       // Atualiza os valores do funcionário
       funcionarioDiaria.quantidadeDiarias += 1;
-      funcionarioDiaria.valorTotal += valorDiaria;
-
-      return acc;
-    }, []);
+      if (quantFaltas >= 2) {
+        funcionarioDiaria.valorTotal += valorDiaria - 20;
+      } else {
+        funcionarioDiaria.valorTotal += valorDiaria;
+      }
+    }
 
     return result;
   }

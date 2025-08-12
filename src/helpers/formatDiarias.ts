@@ -34,11 +34,12 @@ export function formatDiarias(diarias: DiariaAllData[]) {
 
     resultado[day][d.funcionario.name] = d.obra.name;
 
-    for (const [funcionario, obra] of Object.entries(resultado[day])) {
-      if (obra === '') {
-        resultado[day][funcionario] = 'Falta';
-      }
-    }
+    // //percorrer o objeto como se fosse um array
+    // Object.entries(resultado[day]).forEach(([funcionario, obra]) => {
+    //   if (obra === '') {
+    //     resultado[day][funcionario] = 'Falta';
+    //   }
+    // });
   });
 
   return resultado;

@@ -23,4 +23,9 @@ export class FuncionariosController {
   async findOne(@Param('id') id: string) {
     return await this.funcionariosService.findFuncionario(id);
   }
+
+  @Get('/get-valor-funcionario/:id')
+  async getValorFuncionario(@Param('id') id: string) {
+    return await this.funcionariosService.getValorFuncionario(id);
+  }
 }
