@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { GestaoService } from './gestao.service';
 import { CreateDiariaDto } from './dto/createDiaria.dto';
 
@@ -19,9 +27,13 @@ export class GestaoController {
     return this.gestaoService.listDiarias();
   }
 
+  //adaptar para poder receber  ou nao startDate e endDate
   @Get('relatorios-gerais')
-  listRelatoriosGerais() {
-    return this.gestaoService.listRelatoriosGerais();
+  listRelatoriosGerais(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.gestaoService.listRelatoriosGerais(startDate, endDate);
   }
 
   @Get(':id')

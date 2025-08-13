@@ -73,8 +73,24 @@ export class GestaoService {
     return agrupado;
   }
 
-  async listRelatoriosGerais(): Promise<any[]> {
-    const diarias = (await this.gestaoRepository.findAll()) as DiariaAllData[];
+  async listRelatoriosGerais(
+    startDate?: string,
+    endDate?: string,
+  ): Promise<any[]> {
+    let diarias: DiariaAllData[];
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      diarias = (await this.gestaoRepository.findAll(
+        start,
+        end,
+      )) as DiariaAllData[];
+    } else {
+      diarias = (await this.gestaoRepository.findAll()) as DiariaAllData[];
+    }
 
     type DiariaAgrupada = {
       funcionario: string;

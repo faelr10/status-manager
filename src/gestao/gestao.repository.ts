@@ -49,25 +49,21 @@ export class GestaoRepository {
     });
   }
 
-  async findAll(): Promise<any[]> {
-    const start = new Date(
-      Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1),
-    );
-    const end = new Date(
-      Date.UTC(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-    );
-
+  async findAll(startDate?: Date, endDate?: Date): Promise<any[]> {
     return this.prisma.diaria.findMany({
       include: {
         funcionario: true,
         obra: { include: { Construtora: true } },
       },
-      where: {
-        data: {
-          gte: start,
-          lt: end,
-        },
-      },
+      where:
+        startDate && endDate
+          ? {
+              data: {
+                gte: startDate,
+                lt: endDate,
+              },
+            }
+          : undefined,
     });
   }
 
