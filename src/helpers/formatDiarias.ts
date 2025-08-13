@@ -1,45 +1,40 @@
 import { DiariaAllData } from 'src/gestao/gestao.repository';
 
 export function formatDiarias(diarias: DiariaAllData[]) {
-  //Set evits duplicate funcionario names
+  // Set para evitar duplicatas de nomes de funcionários
   const funcionariosSet = new Set<string>();
-
-  //percorre o array e add o nome do funcionario no set - set nao permite duplicatas
   diarias.forEach((d) => funcionariosSet.add(d.funcionario.name));
 
-  //converter para array
   const funcionarios = Array.from(funcionariosSet);
 
-  //criar um objeto onde chave é string(dia) e o valor é um objeto com chave->nome dos funcionarios e valor->nome da obra
+  // Objeto final
   const resultado: Record<string, Record<string, string>> = {};
 
   diarias.forEach((d) => {
-    //pegar o dia da diaria
+    // Normalizar a data para pegar só o dia
     const date = new Date(d.data);
     const localDate = new Date(
       date.getTime() + date.getTimezoneOffset() * 60000,
     );
     const day = localDate.getDate().toString();
 
-    //verifica se o dia ja existe no objeto resultado
+    // Inicializa o dia com todos os funcionários vazios
     if (!resultado[day]) {
-      //se nao existir, cria um novo objeto para aquele dia
       resultado[day] = {};
-
-      //pegar todos funcionarios e add à aquele dia, mas sem atribuir obra ainda
       funcionarios.forEach((f) => {
         resultado[day][f] = '';
       });
     }
 
-    resultado[day][d.funcionario.name] = d.obra.name;
+    // Monta a string da obra com horas
+    const obraComHoras = `${d.obra.name} - ${d.quantHoras}hrs`;
 
-    // //percorrer o objeto como se fosse um array
-    // Object.entries(resultado[day]).forEach(([funcionario, obra]) => {
-    //   if (obra === '') {
-    //     resultado[day][funcionario] = 'Falta';
-    //   }
-    // });
+    // Se já existe valor para o funcionário, concatena com "|"
+    if (resultado[day][d.funcionario.name]) {
+      resultado[day][d.funcionario.name] += ` | ${obraComHoras}`;
+    } else {
+      resultado[day][d.funcionario.name] = obraComHoras;
+    }
   });
 
   return resultado;
