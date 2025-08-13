@@ -156,7 +156,7 @@ export class GestaoService {
       // Atualiza os valores do funcionário
       funcionarioDiaria.quantidadeHoras += quantHoras;
       funcionarioDiaria.quantidadeDiarias += Number(
-        (quantHoras / 8.8).toFixed(2),
+        (quantHoras / 8.8).toFixed(3),
       );
 
       if (quantFaltas >= 2) {
