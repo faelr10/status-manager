@@ -33,6 +33,7 @@ model Funcionarios {
   id          String   @id @default(uuid()) @db.Uuid
   name        String
   valorDiaria Float
+  valorHora   Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Diaria      Diaria[]
@@ -45,6 +46,8 @@ model Diaria {
   obraId        String       @db.Uuid
   funcionarioId String       @db.Uuid
   valorDiaria   Float
+  valorHora     Float
+  quantHoras    Float
   data          DateTime
   obra          Obras        @relation(fields: [obraId], references: [id])
   funcionario   Funcionarios @relation(fields: [funcionarioId], references: [id])

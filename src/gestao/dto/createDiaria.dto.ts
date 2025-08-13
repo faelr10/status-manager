@@ -1,8 +1,7 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { DiariaCreateInput } from '../gestao.repository';
 import { Type } from 'class-transformer';
 
-export class CreateDiariaDto implements DiariaCreateInput {
+export class CreateDiariaDto {
   @IsString()
   @IsNotEmpty()
   funcionarioId: string;
@@ -18,4 +17,10 @@ export class CreateDiariaDto implements DiariaCreateInput {
 
   @IsNumber()
   valorDiaria: number = 0;
+
+  @IsNumber()
+  quantHoras: number = 0;
+
+  @IsNumber()
+  valorHora: number = 0;
 }

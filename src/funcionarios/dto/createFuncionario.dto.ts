@@ -1,7 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { FuncionariosCreateInput } from '../funcionarios.repository';
 
-export class CreateFuncionarioDto implements FuncionariosCreateInput {
+export class CreateFuncionarioDto {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -9,4 +8,7 @@ export class CreateFuncionarioDto implements FuncionariosCreateInput {
   @IsNotEmpty()
   @IsNumber()
   valorDiaria: number;
+
+  @IsNumber()
+  valorHora: number = 0;
 }

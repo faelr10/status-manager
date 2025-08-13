@@ -6,6 +6,8 @@ export type DiariaCreateInput = {
   obraId: string;
   data: Date;
   valorDiaria: number;
+  valorHora: number;
+  quantHoras: number;
 };
 
 export type FaltasCreateInput = {

@@ -4,6 +4,7 @@ import { Funcionarios, PrismaClient } from 'generated/prisma';
 export type FuncionariosCreateInput = {
   name: string;
   valorDiaria: number;
+  valorHora: number;
 };
 
 @Injectable()

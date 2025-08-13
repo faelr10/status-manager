@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import {
   DiariaAllData,
   DiariaCreateInput,
@@ -19,7 +19,7 @@ export class GestaoService {
       id: data.funcionarioId,
     });
     if (!funcionario) {
-      throw new Error('Funcionario not found');
+      throw new ForbiddenException('Funcionario not found');
     }
 
     if (data.obraId === 'falta') {
@@ -31,6 +31,7 @@ export class GestaoService {
     }
 
     data.valorDiaria = funcionario.valorDiaria;
+    data.valorHora = funcionario.valorHora;
 
     return this.gestaoRepository.create(data);
   }
