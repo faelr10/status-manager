@@ -80,6 +80,7 @@ export class GestaoService {
       funcionario: string;
       funcionarioId: string;
       quantidadeDiarias: number;
+      quantidadeHoras: number;
       valorTotal: number;
     };
 
@@ -98,7 +99,7 @@ export class GestaoService {
     const result: ConstrutoraAgrupada[] = [];
 
     for (const diaria of diarias) {
-      const { obra, funcionario, valorDiaria } = diaria;
+      const { obra, funcionario, valorHora, quantHoras } = diaria;
 
       const construtoraId = obra.Construtora.id;
       const construtoraName = obra.Construtora.name;
@@ -134,6 +135,7 @@ export class GestaoService {
           funcionario: funcionario.name,
           funcionarioId: funcionario.id,
           quantidadeDiarias: 0,
+          quantidadeHoras: 0,
           valorTotal: 0,
         };
         obraExistente.diarias.push(funcionarioDiaria);
@@ -152,11 +154,17 @@ export class GestaoService {
       }
 
       // Atualiza os valores do funcionário
-      funcionarioDiaria.quantidadeDiarias += 1;
+      funcionarioDiaria.quantidadeHoras += quantHoras;
+      funcionarioDiaria.quantidadeDiarias += Number(
+        (quantHoras / 8.8).toFixed(2),
+      );
+
       if (quantFaltas >= 2) {
-        funcionarioDiaria.valorTotal += valorDiaria - 20;
+        funcionarioDiaria.valorTotal += valorHora * quantHoras - 20;
       } else {
-        funcionarioDiaria.valorTotal += valorDiaria;
+        console.log(valorHora, quantHoras);
+
+        funcionarioDiaria.valorTotal += valorHora * quantHoras;
       }
     }
 
