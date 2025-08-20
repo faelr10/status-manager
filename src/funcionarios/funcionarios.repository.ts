@@ -5,6 +5,8 @@ export type FuncionariosCreateInput = {
   name: string;
   valorDiaria: number;
   valorHora: number;
+  possuiCesta?: boolean;
+  cargo: string;
 };
 
 @Injectable()

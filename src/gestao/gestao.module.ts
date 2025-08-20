@@ -4,6 +4,7 @@ import { GestaoController } from './gestao.controller';
 import { GestaoService } from './gestao.service';
 import { GestaoRepository } from './gestao.repository';
 import { FuncionariosRepository } from 'src/funcionarios/funcionarios.repository';
+import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 
 @Module({
   imports: [],
@@ -11,6 +12,7 @@ import { FuncionariosRepository } from 'src/funcionarios/funcionarios.repository
   providers: [
     GestaoService,
     GestaoRepository,
+    FuncionariosService,
     FuncionariosRepository,
     PrismaClient,
   ],

@@ -11,4 +11,7 @@ export class CreateFuncionarioDto {
 
   @IsNumber()
   valorHora: number = 0;
+
+  @IsString()
+  cargo: string;
 }

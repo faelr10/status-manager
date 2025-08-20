@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { FuncionariosService } from './funcionarios.service';
 import { CreateFuncionarioDto } from './dto/createFuncionario.dto';
 
@@ -24,8 +32,12 @@ export class FuncionariosController {
     return await this.funcionariosService.findFuncionario(id);
   }
 
+  //quero pegar o valor da quinzena como query
   @Get('/get-valor-funcionario/:id')
-  async getValorFuncionario(@Param('id') id: string) {
-    return await this.funcionariosService.getValorFuncionario(id);
+  async getValorFuncionario(
+    @Param('id') id: string,
+    @Query('quinzena') quinzena: string,
+  ) {
+    return await this.funcionariosService.getValorFuncionario(id, quinzena);
   }
 }

@@ -34,6 +34,8 @@ model Funcionarios {
   name        String
   valorDiaria Float
   valorHora   Float
+  possuiCesta Boolean  @default(false)
+  cargo       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Diaria      Diaria[]
@@ -75,4 +77,29 @@ model Faltas {
   updatedAt     DateTime @updatedAt
 
   @@map("faltas")
+}
+
+model Quinzena {
+  id                String   @id @default(uuid()) @db.Uuid
+  funcionarioId     String   @db.Uuid
+  valorContraCheque Float
+  bonificacao       Float
+  cafePassagem      Float
+  ref_quinzena      String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("quinzenas")
+}
+
+model ListaQuinzenas {
+  id          String   @id @default(uuid()) @db.Uuid
+  start       DateTime
+  end         DateTime
+  ref_periodo String
+  ref_mes     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("lista_quinzenas")
 }

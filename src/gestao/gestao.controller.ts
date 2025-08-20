@@ -36,8 +36,23 @@ export class GestaoController {
     return this.gestaoService.listRelatoriosGerais(startDate, endDate);
   }
 
+  @Get('relatorio-financeiro')
+  getRelatorioFinanceiro(@Query('quinzena') quinzena: string) {
+    return this.gestaoService.getRelatorioFinanceiro(quinzena);
+  }
+
+  @Get('lista-quinzenas')
+  async listQuinzenas() {
+    return this.gestaoService.listQuinzenas();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.gestaoService.findDiariaByFuncionario(id);
+  }
+
+  @Post('quinzenas/gerar')
+  async gerarQuinzenas() {
+    return this.gestaoService.gerarQuinzenasProAno();
   }
 }

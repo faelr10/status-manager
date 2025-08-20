@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Diaria, Faltas, PrismaClient } from 'generated/prisma';
+import {
+  Diaria,
+  Faltas,
+  ListaQuinzenas,
+  PrismaClient,
+  Quinzena,
+} from 'generated/prisma';
 
 export type DiariaCreateInput = {
   funcionarioId: string;
@@ -73,6 +79,26 @@ export class GestaoRepository {
     });
   }
 
+  async findAllDiariasParams(
+    id: string,
+    start: Date,
+    end: Date,
+  ): Promise<Diaria[] | null> {
+    return this.prisma.diaria.findMany({
+      where: {
+        funcionarioId: id,
+        data: {
+          gte: start,
+          lt: end,
+        },
+      },
+    });
+  }
+
+  async findAllListQuinzenas(): Promise<ListaQuinzenas[]> {
+    return this.prisma.listaQuinzenas.findMany();
+  }
+
   async newFalta(data: FaltasCreateInput): Promise<Faltas> {
     return this.prisma.faltas.create({
       data,
@@ -86,6 +112,44 @@ export class GestaoRepository {
   async findAllFaltasById(where: Partial<Faltas>): Promise<Faltas[] | null> {
     return this.prisma.faltas.findMany({
       where,
+    });
+  }
+
+  async getQuinzenaByUsuario(
+    funcionarioId: string,
+    ref_quinzena: string,
+  ): Promise<Quinzena | null> {
+    return this.prisma.quinzena.findFirst({
+      where: {
+        funcionarioId,
+        ref_quinzena,
+      },
+    });
+  }
+
+  async createManyQuinzenas(
+    data: {
+      start: Date;
+      end: Date;
+      ref_periodo: string;
+      ref_mes: string;
+    }[],
+  ): Promise<{ count: number }> {
+    return this.prisma.listaQuinzenas.createMany({
+      data,
+      skipDuplicates: true,
+    });
+  }
+
+  async getAllCurrentQuinzena(): Promise<ListaQuinzenas[]> {
+    return this.prisma.listaQuinzenas.findMany();
+  }
+
+  async getQuinzenaByRef(ref: string): Promise<ListaQuinzenas | null> {
+    return this.prisma.listaQuinzenas.findFirst({
+      where: {
+        ref_periodo: ref,
+      },
     });
   }
 }

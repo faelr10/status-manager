@@ -6,12 +6,14 @@ import {
 } from './gestao.repository';
 import { FuncionariosRepository } from 'src/funcionarios/funcionarios.repository';
 import { formatDiarias } from 'src/helpers/formatDiarias';
+import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 
 @Injectable()
 export class GestaoService {
   constructor(
     private readonly gestaoRepository: GestaoRepository,
     private readonly funcionarioRepository: FuncionariosRepository,
+    private readonly funcionarioService: FuncionariosService,
   ) {}
 
   async newDiaria(data: DiariaCreateInput) {
@@ -21,6 +23,10 @@ export class GestaoService {
     if (!funcionario) {
       throw new ForbiddenException('Funcionario not found');
     }
+
+    //definir todo registro ao meio dia
+    data.data = new Date(data.data);
+    data.data.setHours(12, 0, 0, 0);
 
     if (data.obraId === 'falta') {
       console.log('teste');
@@ -190,4 +196,100 @@ export class GestaoService {
   async findDiariaByFuncionario(id: string) {
     return this.gestaoRepository.findAllDiariasById({ funcionarioId: id });
   }
+
+  async getRelatorioFinanceiro(quinzena: string): Promise<any> {
+    const quinzenaBusca =
+      await this.gestaoRepository.getQuinzenaByRef(quinzena);
+
+    if (!quinzenaBusca) {
+      throw new ForbiddenException('Quinzena não encontrada');
+    }
+
+    const diarias = await this.gestaoRepository.findAll(
+      quinzenaBusca.start,
+      quinzenaBusca.end,
+    );
+
+    //fazer um set e pegar os funcionarios
+    const funcionarios = new Set(
+      diarias.map((diaria) => diaria.funcionario.id),
+    );
+
+    const lista = await Promise.all(
+      Array.from(funcionarios).map((id: string) =>
+        this.funcionarioService.getValorFuncionario(id, quinzena),
+      ),
+    );
+
+    return lista;
+  }
+
+  async listQuinzenas() {
+    return this.gestaoRepository.findAllListQuinzenas();
+  }
+
+  async gerarQuinzenasProAno(): Promise<any[]> {
+    const inicio = new Date('2025-07-28'); // primeira quinzena fixa
+    const quantidadeMeses = 12;
+    const registros: {
+      start: Date;
+      end: Date;
+      ref_periodo: string;
+      ref_mes: string;
+    }[] = [];
+
+    let current = inicio;
+
+    for (let i = 0; i < quantidadeMeses; i++) {
+      // Primeira quinzena: 28 → 10
+      const primeiraStart = new Date(current);
+      const primeiraEnd = new Date(primeiraStart);
+      primeiraEnd.setMonth(primeiraEnd.getMonth() + 1);
+      primeiraEnd.setDate(10);
+
+      registros.push({
+        start: primeiraStart,
+        end: primeiraEnd,
+        ref_periodo: `${this.formatDate(primeiraStart)} | ${this.formatDate(
+          primeiraEnd,
+        )}`,
+        ref_mes: '1',
+      });
+
+      // Segunda quinzena: 11 → 24
+      const segundaStart = new Date(primeiraStart);
+      segundaStart.setMonth(segundaStart.getMonth() + 1);
+      segundaStart.setDate(11);
+
+      const segundaEnd = new Date(segundaStart);
+      segundaEnd.setDate(24);
+
+      registros.push({
+        start: segundaStart,
+        end: segundaEnd,
+        ref_periodo: `${this.formatDate(segundaStart)} | ${this.formatDate(
+          segundaEnd,
+        )}`,
+        ref_mes: '2',
+      });
+
+      // Avança para o próximo mês (dia 28 do próximo mês)
+      current = addMonths(primeiraStart, 1);
+    }
+
+    // Salvar no banco via repository
+    await this.gestaoRepository.createManyQuinzenas(registros);
+
+    return registros;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toLocaleDateString('pt-BR'); // 28/07/2025
+  }
+}
+
+function addMonths(date: Date, months: number): Date {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
 }
