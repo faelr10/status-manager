@@ -106,7 +106,10 @@ export class FuncionariosService {
     let valorInss = 0;
     if (funcionario.cargo == 'Bombeiro' && quinzenaBusca.ref_mes == '1') {
       valorInss = 200.88;
-    } else if (funcionario.cargo == 'Ajudante') {
+    } else if (
+      funcionario.cargo == 'Ajudante' &&
+      quinzenaBusca.ref_mes == '1'
+    ) {
       valorInss = 192.2;
     }
 
